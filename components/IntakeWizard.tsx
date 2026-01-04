@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Check, ChevronRight, ChevronLeft, Save, Upload, Plus, Camera, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { saveIntake } from '../services/db';
+import { saveIntake, IntakeData } from '../services/db';
 
 const STEPS = [
     'Client & Basics',
@@ -10,50 +10,6 @@ const STEPS = [
     'Notes & Photos',
     'Review'
 ];
-
-interface IntakeData {
-    // Step 1
-    clientName: string;
-    intakeDate: string;
-    propertyAddress: string;
-    repName: string;
-    primaryPhone: string;
-    secondaryPhone: string;
-    email: string;
-    altEmail: string;
-    dateOfLoss: string;
-    lossType: string;
-    insuranceCo: string;
-    policyNumber: string;
-    claimNumber: string;
-    priorClaim: boolean;
-    priorClaimDetails: string;
-
-    // Step 2
-    interiorAreas: string[];
-    exteriorAreas: string[];
-    interiorNotes: string;
-
-    // Step 3
-    repairsMade: boolean;
-    repairsDetails: string;
-    mitigationUsed: boolean;
-    mitigationCompany: string;
-    receiptsAvailable: boolean;
-    emergencyServices: boolean;
-
-    // Step 4
-    contentsDamaged: boolean;
-    highValueItems: boolean;
-    tempRelocation: boolean;
-    lossOfUse: boolean;
-
-    // Step 5
-    generalNotes: string;
-    internalNotes: string;
-    photosTaken: boolean;
-    noPhotosReason: string;
-}
 
 const INITIAL_DATA: IntakeData = {
     clientName: '',

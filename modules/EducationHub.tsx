@@ -17,6 +17,27 @@ export const EducationHub: React.FC<EducationHubProps> = ({ role }) => {
         <p className="text-slate-500 text-xl max-w-2xl mx-auto">Everything you need to know about navigating insurance claims and public adjusting.</p>
       </div>
 
+      {/* Featured News */}
+      <div className="space-y-6">
+        <div className="flex justify-between items-end">
+          <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Latest Claim Intelligence</h3>
+          <button className="text-blue-600 font-bold text-sm hover:underline">View All Articles</button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { tag: 'Storm Alert', title: 'Hurricane Season Forecast: What Homeowners Need to Know', date: 'Jan 4, 2026' },
+            { tag: 'Regulation', title: 'New Florida Insurance Laws: Impact on Roof Replacements', date: 'Jan 2, 2026' },
+            { tag: 'Policy Tips', title: 'How to Read Your Declarations Page Like a Pro', date: 'Dec 28, 2025' }
+          ].map((news, i) => (
+            <div key={i} className="bg-white p-6 rounded-[24px] border border-slate-200 shadow-sm hover:shadow-md transition-all group cursor-pointer">
+              <span className="text-[10px] font-black uppercase text-blue-600 mb-3 block">{news.tag}</span>
+              <h4 className="font-bold text-slate-800 mb-4 group-hover:text-blue-600 transition-colors leading-tight">{news.title}</h4>
+              <p className="text-xs text-slate-400 font-medium">{news.date}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Grid Content */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Advice Column */}
@@ -49,17 +70,17 @@ export const EducationHub: React.FC<EducationHubProps> = ({ role }) => {
                 <Scale className="text-blue-500" /> Local Adjusting Statutes
               </h3>
               <div className="space-y-4">
-                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                   <h4 className="font-bold text-sm">Fla. Stat. § 626.854</h4>
-                   <p className="text-xs text-slate-500 mt-1 italic">Public Adjuster Professional Ethics and Conduct rules. Updated 2024.</p>
-                 </div>
-                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                   <h4 className="font-bold text-sm">Homeowner Claims Bill of Rights</h4>
-                   <p className="text-xs text-slate-500 mt-1">Requires insurers to respond within 7 days of receiving your claim communication.</p>
-                 </div>
-                 <button className="text-blue-600 text-sm font-bold flex items-center gap-2 hover:underline">
-                   View All Relevant Statutes <BookOpen size={16} />
-                 </button>
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <h4 className="font-bold text-sm">Fla. Stat. § 626.854</h4>
+                  <p className="text-xs text-slate-500 mt-1 italic">Public Adjuster Professional Ethics and Conduct rules. Updated 2024.</p>
+                </div>
+                <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <h4 className="font-bold text-sm">Homeowner Claims Bill of Rights</h4>
+                  <p className="text-xs text-slate-500 mt-1">Requires insurers to respond within 7 days of receiving your claim communication.</p>
+                </div>
+                <button className="text-blue-600 text-sm font-bold flex items-center gap-2 hover:underline">
+                  View All Relevant Statutes <BookOpen size={16} />
+                </button>
               </div>
             </section>
           )}

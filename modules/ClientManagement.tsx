@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Search, Filter, PenTool, ClipboardList, ArrowLeft, Send, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, Filter, PenTool, ClipboardList, ArrowLeft, Send, CheckCircle2, X } from 'lucide-react';
 
 import { IntakeWizard } from '../components/IntakeWizard';
 import { QuickContract } from '../components/QuickContract';
@@ -129,62 +129,125 @@ export const ClientManagement: React.FC = () => {
             case 'LIST':
             default:
                 return (
-                    <div className="bg-white rounded-[40px] border border-slate-200 overflow-hidden shadow-sm animate-in fade-in duration-500">
-                        <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <h3 className="text-2xl font-black text-slate-800 tracking-tight">Claim Management Console</h3>
-                                <p className="text-slate-500">Internal status tracking for all firm-represented policyholders.</p>
-                            </div>
-                            <div className="flex gap-3">
-                                <button className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
-                                    <Filter size={18} /> Filter
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('SELECTION')}
-                                    className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                    <div className="space-y-6 animate-in fade-in duration-500">
+                        {/* Incoming Lead Notifications */}
+                        <div className="space-y-4">
+                            {[
+                                {
+                                    id: 'lead-1',
+                                    name: 'Sarah Mitchell',
+                                    type: 'Hurricane Roof Damage',
+                                    time: '2 minutes ago',
+                                    source: 'Damage Calculator',
+                                    urgent: true
+                                },
+                                {
+                                    id: 'lead-2',
+                                    name: 'Robert Chen',
+                                    type: 'Water Leak - Kitchen',
+                                    time: '18 minutes ago',
+                                    source: 'Referral Link',
+                                    urgent: false
+                                }
+                            ].map((lead) => (
+                                <div
+                                    key={lead.id}
+                                    className={`bg-gradient-to-r ${lead.urgent ? 'from-red-50 to-orange-50 border-red-200' : 'from-blue-50 to-indigo-50 border-blue-200'} border-2 rounded-[32px] p-6 shadow-sm animate-in slide-in-from-top-4`}
                                 >
-                                    <Plus size={20} /> New File
-                                </button>
-                            </div>
+                                    <div className="flex items-center justify-between gap-6">
+                                        <div className="flex items-center gap-4 flex-1">
+                                            <div className={`w-12 h-12 ${lead.urgent ? 'bg-red-600' : 'bg-blue-600'} rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg relative`}>
+                                                {lead.name[0]}
+                                                {lead.urgent && (
+                                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full border-2 border-white animate-pulse"></div>
+                                                )}
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-1">
+                                                    <h4 className="text-lg font-black text-slate-900">{lead.name}</h4>
+                                                    {lead.urgent && (
+                                                        <span className="bg-red-600 text-white text-[8px] font-black uppercase px-2 py-1 rounded-full">Urgent</span>
+                                                    )}
+                                                    <span className="text-xs text-slate-400 font-bold">• {lead.time}</span>
+                                                </div>
+                                                <p className="text-sm text-slate-600 font-medium">{lead.type}</p>
+                                                <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mt-1">Source: {lead.source}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => setViewMode('SELECTION')}
+                                                className={`${lead.urgent ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2 active:scale-95`}
+                                            >
+                                                <Plus size={18} /> Accept Lead
+                                            </button>
+                                            <button className="text-slate-400 hover:text-slate-600 transition-colors p-2">
+                                                <X size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100">
-                                    <tr>
-                                        <th className="px-10 py-5">Policyholder</th>
-                                        <th className="px-10 py-5">File ID</th>
-                                        <th className="px-10 py-5">Workflow Status</th>
-                                        <th className="px-10 py-5">Created Date</th>
-                                        <th className="px-10 py-5 text-right">Access</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {loading ? (
-                                        <tr><td colSpan={5} className="text-center py-10">Loading records...</td></tr>
-                                    ) : claims.length === 0 ? (
-                                        <tr><td colSpan={5} className="text-center py-10 text-slate-500">No active files found. Start a new file above.</td></tr>
-                                    ) : (
-                                        claims.map((claim) => (
-                                            <tr key={claim.id} className="hover:bg-slate-50 transition-all group">
-                                                <td className="px-10 py-8 font-black text-slate-800">
-                                                    {claim.name}
-                                                    <span className="block text-[10px] text-slate-400 font-normal uppercase tracking-wider">{claim.type}</span>
-                                                </td>
-                                                <td className="px-10 py-8 font-mono text-xs text-slate-400">{claim.id.slice(0, 8)}...</td>
-                                                <td className="px-10 py-8">
-                                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${claim.status === 'sent' ? 'bg-yellow-50 text-yellow-600' : 'bg-blue-50 text-blue-600'}`}>
-                                                        {claim.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-10 py-8 font-black text-slate-900">{claim.date}</td>
-                                                <td className="px-10 py-8 text-right">
-                                                    <button className="text-indigo-600 font-bold text-sm hover:underline">Manage File</button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
+
+                        {/* Main Claims Table */}
+                        <div className="bg-white rounded-[40px] border border-slate-200 overflow-hidden shadow-sm">
+                            <div className="p-10 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h3 className="text-2xl font-black text-slate-800 tracking-tight">Claim Management Console</h3>
+                                    <p className="text-slate-500">Internal status tracking for all firm-represented policyholders.</p>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button className="bg-white border border-slate-200 text-slate-600 px-6 py-3 rounded-2xl font-bold hover:bg-slate-50 transition-all flex items-center gap-2">
+                                        <Filter size={18} /> Filter
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('SELECTION')}
+                                        className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 flex items-center gap-2"
+                                    >
+                                        <Plus size={20} /> New File
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] border-b border-slate-100">
+                                        <tr>
+                                            <th className="px-10 py-5">Policyholder</th>
+                                            <th className="px-10 py-5">File ID</th>
+                                            <th className="px-10 py-5">Workflow Status</th>
+                                            <th className="px-10 py-5">Created Date</th>
+                                            <th className="px-10 py-5 text-right">Access</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {loading ? (
+                                            <tr><td colSpan={5} className="text-center py-10">Loading records...</td></tr>
+                                        ) : claims.length === 0 ? (
+                                            <tr><td colSpan={5} className="text-center py-10 text-slate-500">No active files found. Start a new file above.</td></tr>
+                                        ) : (
+                                            claims.map((claim) => (
+                                                <tr key={claim.id} className="hover:bg-slate-50 transition-all group">
+                                                    <td className="px-10 py-8 font-black text-slate-800">
+                                                        {claim.name}
+                                                        <span className="block text-[10px] text-slate-400 font-normal uppercase tracking-wider">{claim.type}</span>
+                                                    </td>
+                                                    <td className="px-10 py-8 font-mono text-xs text-slate-400">{claim.id.slice(0, 8)}...</td>
+                                                    <td className="px-10 py-8">
+                                                        <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${claim.status === 'sent' ? 'bg-yellow-50 text-yellow-600' : 'bg-blue-50 text-blue-600'}`}>
+                                                            {claim.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-10 py-8 font-black text-slate-900">{claim.date}</td>
+                                                    <td className="px-10 py-8 text-right">
+                                                        <button className="text-indigo-600 font-bold text-sm hover:underline">Manage File</button>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 );

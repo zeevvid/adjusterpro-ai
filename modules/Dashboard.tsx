@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { 
-  TrendingUp, FileCheck, Clock, Users, CloudRain, MapPin, 
-  AlertTriangle, FileText, CheckCircle2, MessageSquare, 
+import {
+  TrendingUp, FileCheck, Clock, Users, CloudRain, MapPin,
+  AlertTriangle, FileText, CheckCircle2, MessageSquare,
   ArrowRight, ShieldCheck, Download, Zap, Home, Info, BookOpen, PlusCircle, PhoneForwarded
 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -17,14 +17,14 @@ const data = [
   { month: 'Jun', claims: 85 },
 ];
 
-export const Dashboard: React.FC<{ role: UserRole }> = ({ role }) => {
-  if (role === UserRole.CLIENT) {
-    return <ClientDashboard />;
+export const Dashboard: React.FC<{ role: UserRole | null }> = ({ role }) => {
+  if (!role || role === UserRole.CLIENT) {
+    return <ClientDashboard isGuest={!role} />;
   }
   return <AdjusterDashboard />;
 };
 
-const ClientDashboard: React.FC = () => {
+const ClientDashboard: React.FC<{ isGuest?: boolean }> = ({ isGuest }) => {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Homeowner Hero Section */}
@@ -35,23 +35,22 @@ const ClientDashboard: React.FC = () => {
               <Home size={24} />
             </div>
             <div>
-              <h1 className="text-3xl font-black text-slate-900">Welcome, Alice Johnson</h1>
-              <p className="text-slate-500 font-medium">Homeowner Portal • Claim #AP-2024-884</p>
+              <h1 className="text-3xl font-black text-slate-900">{isGuest ? 'Your Claim Command Center' : 'Welcome, Alice Johnson'}</h1>
+              <p className="text-slate-500 font-medium">{isGuest ? 'Public Access Mode' : 'Homeowner Portal • Claim #AP-2024-884'}</p>
             </div>
           </div>
-          
+
           <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 relative overflow-hidden group">
             <Zap className="absolute -right-4 -bottom-4 w-32 h-32 text-blue-600/5 group-hover:scale-110 transition-transform" />
             <p className="text-lg text-slate-700 leading-relaxed mb-4">
-              Your claim is currently in <span className="text-blue-600 font-bold underline decoration-blue-200 underline-offset-4">Phase 3: Field Verification</span>. 
-              Our experts are documenting structural damage found during yesterday's inspection.
+              {isGuest ? 'Use this hub to estimate your claim value, track local storms, and learn how to maximize your recovery from insurance carrier tactics.' : 'Your claim is currently in Phase 3: Field Verification. Our experts are documenting structural damage found during yesterday\'s inspection.'}
             </p>
             <div className="flex flex-wrap gap-4">
               <button className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-md shadow-blue-500/10 active:scale-95">
-                Message Adjuster <MessageSquare size={18} />
+                {isGuest ? 'Calculate Damage' : 'Message Adjuster'} <MessageSquare size={18} />
               </button>
               <button className="bg-white text-slate-700 border border-slate-200 px-6 py-2.5 rounded-xl font-bold hover:bg-slate-50 transition-all active:scale-95">
-                Full Claim History
+                {isGuest ? 'Explore Storm Radar' : 'Full Claim History'}
               </button>
             </div>
           </div>
@@ -75,15 +74,15 @@ const ClientDashboard: React.FC = () => {
             </div>
           </div>
           <div className="bg-blue-600 rounded-[32px] p-6 text-white flex flex-col justify-center group cursor-pointer hover:bg-blue-700 transition-all">
-             <div className="flex items-center gap-4">
-               <div className="p-3 bg-white/20 rounded-2xl group-hover:scale-110 transition-transform">
-                 <TrendingUp size={24} />
-               </div>
-               <div>
-                 <p className="text-[10px] font-bold text-blue-100 uppercase tracking-wider">Projected Outcome</p>
-                 <p className="font-bold text-sm">Targeting +$12k over carrier initial quote</p>
-               </div>
-             </div>
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-white/20 rounded-2xl group-hover:scale-110 transition-transform">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-blue-100 uppercase tracking-wider">Projected Outcome</p>
+                <p className="font-bold text-sm">Targeting +$12k over carrier initial quote</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -128,25 +127,25 @@ const ClientDashboard: React.FC = () => {
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             {[
-               { name: 'Sworn Proof of Loss', date: 'Oct 24, 2024', type: 'Legal' },
-               { name: 'Inspection Photos', date: 'Oct 15, 2024', type: 'Evidence' },
-               { name: 'Mitigation Receipt', date: 'Oct 12, 2024', type: 'Financial' },
-               { name: 'Representation Auth', date: 'Oct 10, 2024', type: 'Admin' }
-             ].map((doc, i) => (
-               <div key={i} className="flex items-center justify-between p-5 bg-slate-50 rounded-3xl border border-slate-100 hover:border-blue-200 transition-all group">
-                 <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-2xl border border-slate-200 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
-                      <FileText size={24} />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-800">{doc.name}</p>
-                      <p className="text-[10px] text-slate-500 uppercase font-bold">{doc.type} • {doc.date}</p>
-                    </div>
-                 </div>
-                 <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-white rounded-xl transition-all"><Download size={20} /></button>
-               </div>
-             ))}
+            {[
+              { name: 'Sworn Proof of Loss', date: 'Oct 24, 2024', type: 'Legal' },
+              { name: 'Inspection Photos', date: 'Oct 15, 2024', type: 'Evidence' },
+              { name: 'Mitigation Receipt', date: 'Oct 12, 2024', type: 'Financial' },
+              { name: 'Representation Auth', date: 'Oct 10, 2024', type: 'Admin' }
+            ].map((doc, i) => (
+              <div key={i} className="flex items-center justify-between p-5 bg-slate-50 rounded-3xl border border-slate-100 hover:border-blue-200 transition-all group">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white rounded-2xl border border-slate-200 text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-colors">
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">{doc.name}</p>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold">{doc.type} • {doc.date}</p>
+                  </div>
+                </div>
+                <button className="p-2 text-slate-400 hover:text-blue-600 hover:bg-white rounded-xl transition-all"><Download size={20} /></button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -176,21 +175,38 @@ const ClientDashboard: React.FC = () => {
           </div>
 
           <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm space-y-6">
-            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2 uppercase text-xs tracking-widest">
+              <BookOpen className="text-blue-500" /> AI Recovery Suggestions
+            </h3>
+            <div className="space-y-4">
+              {[
+                { title: 'Policy Endorsement O-L', desc: 'Your ZIP has high hail activity. Verify if you have "Ordinance or Law" coverage for full roof replacement.' },
+                { title: 'Mitigation Documentation', desc: 'Missing water mitigation invoice from 2 days ago. Upload now to secure reimbursement.' },
+              ].map((s, i) => (
+                <div key={i} className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl space-y-1">
+                  <p className="font-bold text-slate-900 text-xs">{s.title}</p>
+                  <p className="text-[10px] text-slate-500 leading-tight">{s.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm space-y-6">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2 uppercase text-xs tracking-widest">
               <CloudRain className="text-blue-500" /> Local Safety Status
             </h3>
             <div className="space-y-4">
-              <HazardItem 
-                type="Flood Alert" 
-                location="Your Neighborhood" 
-                time="2h ago" 
+              <HazardItem
+                type="Flood Alert"
+                location="Your Neighborhood"
+                time="2h ago"
                 desc="Water levels rising on SW 12th St. Avoid low-lying areas."
                 severity="high"
               />
-              <HazardItem 
-                type="Wind Gusts" 
-                location="Miami-Dade" 
-                time="4h ago" 
+              <HazardItem
+                type="Wind Gusts"
+                location="Miami-Dade"
+                time="4h ago"
                 desc="40mph winds recorded. Check outdoor structures."
                 severity="medium"
               />
@@ -231,14 +247,14 @@ const AdjusterDashboard: React.FC = () => {
               <AreaChart data={data}>
                 <defs>
                   <linearGradient id="colorClaims" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.1} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={15} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} />
-                <Tooltip 
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={15} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                <Tooltip
                   contentStyle={{ borderRadius: '24px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}
                   cursor={{ stroke: '#2563eb', strokeWidth: 2 }}
                 />
@@ -257,24 +273,24 @@ const AdjusterDashboard: React.FC = () => {
             <span className="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-black uppercase tracking-widest">Active Storm</span>
           </div>
           <div className="p-8 space-y-6 flex-1">
-            <HazardItem 
-              type="Storm Surge" 
-              location="Palm Beach, FL" 
-              time="15m ago" 
+            <HazardItem
+              type="Storm Surge"
+              location="Palm Beach, FL"
+              time="15m ago"
               desc="Significant surge recorded. 45 clients in direct impact path. Auto-notifying now."
               severity="high"
             />
-            <HazardItem 
-              type="Hail Track" 
-              location="Coral Springs" 
-              time="1h ago" 
+            <HazardItem
+              type="Hail Track"
+              location="Coral Springs"
+              time="1h ago"
               desc="Large hail cell moved through ZIP 33065. Potential for 200+ roof claims."
               severity="medium"
             />
-            <HazardItem 
-              type="Network Alert" 
-              location="Field Ops" 
-              time="3h ago" 
+            <HazardItem
+              type="Network Alert"
+              location="Field Ops"
+              time="3h ago"
               desc="3 adjusters currently in surge zones. Mitigation vendors mobilized."
               severity="medium"
             />
@@ -288,7 +304,7 @@ const AdjusterDashboard: React.FC = () => {
   );
 };
 
-const StatCard: React.FC<{title: string, value: string, change: string, icon: React.ReactNode}> = ({ title, value, change, icon }) => (
+const StatCard: React.FC<{ title: string, value: string, change: string, icon: React.ReactNode }> = ({ title, value, change, icon }) => (
   <div className="bg-white p-8 rounded-[40px] border border-slate-200 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all group">
     <div className="flex items-center justify-between mb-6">
       <div className="p-3 bg-slate-50 rounded-2xl group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">{icon}</div>
@@ -299,7 +315,7 @@ const StatCard: React.FC<{title: string, value: string, change: string, icon: Re
   </div>
 );
 
-const HazardItem: React.FC<{type: string, location: string, time: string, desc: string, severity: 'high' | 'medium'}> = ({ type, location, time, desc, severity }) => (
+const HazardItem: React.FC<{ type: string, location: string, time: string, desc: string, severity: 'high' | 'medium' }> = ({ type, location, time, desc, severity }) => (
   <div className="group border-l-4 border-slate-100 pl-5 py-2 hover:border-blue-400 transition-colors cursor-default">
     <div className="flex justify-between items-start mb-1">
       <h5 className={`font-black text-sm uppercase tracking-wider ${severity === 'high' ? 'text-red-600' : 'text-orange-600'}`}>{type}</h5>

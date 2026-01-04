@@ -12,12 +12,53 @@ export enum AppView {
   XACTIMATE = 'XACTIMATE',
   GPS_TRACKER = 'GPS_TRACKER',
   MARKETING = 'MARKETING',
-  STORM_HISTORY = 'STORM_HISTORY'
+  STORM_HISTORY = 'STORM_HISTORY',
+  LANDING = 'LANDING',
+  PUBLIC_INTAKE = 'PUBLIC_INTAKE',
+  ADJUSTER_DASHBOARD = 'ADJUSTER_DASHBOARD',
+  SAAS_ADMIN = 'SAAS_ADMIN',
+  SUBSCRIPTION = 'SUBSCRIPTION',
+  REFERRAL = 'REFERRAL',
+  XACTIMATE_VERIFY = 'XACTIMATE_VERIFY'
+}
+
+export enum SubscriptionTier {
+  STARTER = 'STARTER',
+  PRO = 'PRO',
+  AGENCY = 'AGENCY',
+  NONE = 'NONE'
+}
+
+export interface AdjusterProfile {
+  uid: string;
+  email: string;
+  referralId: string; // Unique tracking ID
+  stripeCustomerId?: string;
+  tier: SubscriptionTier;
+  subscriptionStatus: 'active' | 'past_due' | 'canceled' | 'none';
+  companyName?: string;
+  logoUrl?: string;
+  customBranding?: boolean;
+}
+
+export interface PublicIntakeData {
+  damageType: string;
+  damageDetails: string;
+  lossDate: string;
+  address: string;
+  hasPolicy: boolean;
+  policyFile?: File;
+  contactName: string;
+  contactPhone: string;
+  contactTime: string;
+  referralId?: string; // Attribution
+  conversionFeePaid?: boolean;
 }
 
 export enum UserRole {
   CLIENT = 'CLIENT',
-  ADJUSTER = 'ADJUSTER'
+  ADJUSTER = 'ADJUSTER',
+  ADMIN = 'ADMIN'
 }
 
 export interface WeatherThresholds {
