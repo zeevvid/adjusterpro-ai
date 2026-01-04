@@ -14,7 +14,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, activeView, setView, userRole, onLogout, onLoginRequest }) => {
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Default closed on mobile
 
   const filteredNav = NAV_ITEMS.filter(item => {
     if (item.isPublic) return true;
@@ -24,34 +24,48 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, setView, u
 
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className={`bg-slate-900 text-white transition-all duration-300 ${isSidebarOpen ? 'w-64' : 'w-20'} flex flex-col`}>
+      <aside className={`
+        bg-slate-900 text-white transition-all duration-300 flex flex-col z-50
+        fixed md:relative h-full
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        w-64 md:w-64
+      `}>
         <div className="p-6 flex items-center gap-3 border-b border-slate-800">
           <div className="bg-blue-600 p-2 rounded-lg">
             <Shield size={24} />
           </div>
-          {isSidebarOpen && <span className="font-bold text-xl tracking-tight">AdjusterPro</span>}
+          <span className="font-bold text-xl tracking-tight">AdjusterPro</span>
         </div>
 
-        <nav className="flex-1 py-4">
+        <nav className="flex-1 py-4 overflow-y-auto">
           <div className="px-4 mb-4">
-            {isSidebarOpen && (
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 mb-2">
-                {!userRole ? 'Public Access' : userRole === UserRole.ADJUSTER ? 'Pro Workspace' : 'Platform Control'}
-              </p>
-            )}
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-2 mb-2">
+              {!userRole ? 'Public Access' : userRole === UserRole.ADJUSTER ? 'Pro Workspace' : 'Platform Control'}
+            </p>
           </div>
           {filteredNav.map((item) => (
             <button
               key={item.id}
-              onClick={() => setView(item.id)}
+              onClick={() => {
+                setView(item.id);
+                setIsSidebarOpen(false); // Close on mobile after selection
+              }}
               className={`w-full flex items-center p-4 transition-colors ${activeView === item.id
                 ? 'bg-blue-600 text-white shadow-lg'
                 : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
                 }`}
             >
               <div className="flex-shrink-0">{item.icon}</div>
-              {isSidebarOpen && <span className="ml-4 font-bold text-sm">{item.label}</span>}
+              <span className="ml-4 font-bold text-sm">{item.label}</span>
             </button>
           ))}
 
@@ -62,32 +76,40 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeView, setView, u
                 className="w-full bg-blue-600/10 text-blue-400 border border-blue-600/20 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center gap-2 group"
               >
                 <Briefcase size={14} className="group-hover:rotate-12 transition-transform" />
-                {isSidebarOpen && "Adjuster Login"}
+                Adjuster Login
               </button>
             </div>
           )}
         </nav>
 
-        <div className="p-4 border-t border-slate-800">
+        <div className="p-4 border-t border-slate-800 md:hidden">
           <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            onClick={() => setIsSidebarOpen(false)}
             className="w-full flex justify-center p-2 rounded hover:bg-slate-800 text-slate-400"
           >
-            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+            <X size={20} />
           </button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between shadow-sm z-10">
+      <main className="flex-1 flex flex-col overflow-hidden w-full md:w-auto">
+        <header className="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between shadow-sm z-10">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-black text-slate-900">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden p-2 text-slate-600 hover:text-blue-600 transition-colors"
+            >
+              <Menu size={24} />
+            </button>
+
+            <h2 className="text-lg md:text-xl font-black text-slate-900">
               {filteredNav.find(n => n.id === activeView)?.label || 'AdjusterPro AI'}
             </h2>
             <div className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${!userRole ? 'bg-slate-100 text-slate-400' : 'bg-blue-100 text-blue-600'
               }`}>
-              {userRole || 'Public Mode'}
+              {userRole || 'Public'}
             </div>
           </div>
           <div className="flex items-center gap-6">
