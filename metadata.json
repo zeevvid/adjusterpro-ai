@@ -1,0 +1,9 @@
+{
+  "name": "AdjusterPro AI",
+  "description": "A comprehensive Public Adjuster management and claim submission platform with real-time weather tracking, AI assistance, and client portal integration.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
