@@ -1,13 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, ArrowRight, Home, Zap, DollarSign, Sparkles, TrendingUp, Search, User } from 'lucide-react';
+import { storage } from '../../services/firebase';
+import { ref, getDownloadURL } from 'firebase/storage';
 
 interface LandingPageProps {
     onStart: () => void;
     onStaffLogin: () => void;
 }
 
+// Video background configuration - Firebase Storage path
+// Try these common paths (uncomment the one that matches your Firebase Storage structure):
+// If the file is in the root: '202601041855.mp4'
+// If it's in a videos folder: 'videos/202601041855.mp4'
+// If it's in a different folder, use: 'folder-name/202601041855.mp4'
+const VIDEO_STORAGE_PATH = '202601041855.mp4';
+
+// Alternative paths to try if the first one fails
+const ALTERNATIVE_PATHS = [
+    'videos/202601041855.mp4',
+    'background/202601041855.mp4',
+    'assets/202601041855.mp4',
+];
+
 export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onStaffLogin }) => {
-    React.useEffect(() => {
+    console.log('🎬 LandingPage component rendering');
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+
+    // Log component mount
+    useEffect(() => {
+        console.log('🎬 LandingPage component mounted (useEffect)');
+        console.log('📦 Firebase storage instance:', storage);
+        console.log('📦 Storage type:', typeof storage);
+    }, []);
+
+    useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const refId = params.get('ref');
         if (refId) {
@@ -16,16 +42,155 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onStaffLogin 
         }
     }, []);
 
+    // Fetch video URL from Firebase Storage
+    useEffect(() => {
+        console.log('🎥 Video loading useEffect triggered');
+        
+        // Verify storage is available
+        if (!storage) {
+            console.error('❌ Firebase storage is not initialized!');
+            return;
+        }
+        
+        try {
+            console.log('🔍 Storage bucket:', storage.app?.options?.storageBucket || 'Not available');
+        } catch (e) {
+            console.warn('⚠️ Could not access storage bucket info:', e);
+        }
+        
+        const loadVideo = async () => {
+            console.log('🚀 Starting video load process...');
+            // Try the primary path first
+            const pathsToTry = [VIDEO_STORAGE_PATH, ...ALTERNATIVE_PATHS];
+            console.log('📂 Paths to try:', pathsToTry);
+            
+            for (const path of pathsToTry) {
+                try {
+                    console.log(`🔄 Attempting to load video from Firebase Storage: "${path}"`);
+                    const videoRef = ref(storage, path);
+                    console.log('📎 Video reference created');
+                    const url = await getDownloadURL(videoRef);
+                    console.log('✅ Video URL loaded successfully from path:', path);
+                    console.log('🔗 Video URL:', url);
+                    setVideoUrl(url);
+                    return; // Success, exit the function
+                } catch (error: any) {
+                    console.warn(`❌ Failed to load video from path "${path}":`, error?.message || error);
+                    if (error?.code) {
+                        console.warn('Error code:', error.code);
+                        // Common Firebase Storage error codes
+                        if (error.code === 'storage/object-not-found') {
+                            console.error(`File not found at path: ${path}`);
+                        } else if (error.code === 'storage/unauthorized') {
+                            console.error('❌ UNAUTHORIZED: Firebase Storage rules may be blocking access.');
+                            console.error('Please update your Firebase Storage rules to allow public read access.');
+                            console.error('Go to: Firebase Console > Storage > Rules');
+                            console.error('Add this rule: match /{allPaths=**} { allow read: if true; }');
+                        } else if (error.code === 'storage/permission-denied') {
+                            console.error('❌ PERMISSION DENIED: Check Firebase Storage rules.');
+                        }
+                    }
+                    // Continue to next path
+                }
+            }
+            
+            // If all paths failed
+            console.error('❌ Could not load video from any of the attempted paths:', pathsToTry);
+            console.error('Please check:');
+            console.error('1. The file exists in Firebase Storage');
+            console.error('2. The file path is correct (check Firebase Console)');
+            console.error('3. Firebase Storage rules allow public read access');
+        };
+
+        loadVideo().catch((error) => {
+            console.error('💥 Fatal error in loadVideo:', error);
+        });
+    }, []);
+
+    // Handle video playback when URL is loaded
+    useEffect(() => {
+        if (videoUrl) {
+            const videoElement = document.querySelector('video') as HTMLVideoElement;
+            if (videoElement) {
+                // Ensure video plays even if autoplay is blocked
+                const playPromise = videoElement.play();
+                if (playPromise !== undefined) {
+                    playPromise
+                        .then(() => {
+                            console.log('✅ Video playback started successfully');
+                        })
+                        .catch((error) => {
+                            console.warn('⚠️ Autoplay was prevented:', error);
+                            console.log('Video will play when user interacts with the page');
+                        });
+                }
+            }
+        }
+    }, [videoUrl]);
+
     return (
-        <div className="min-h-screen bg-slate-50 overflow-hidden font-inter selection:bg-blue-100 selection:text-blue-900">
+        <div className="min-h-screen bg-slate-50 overflow-hidden font-inter selection:bg-blue-100 selection:text-blue-900 relative">
+            {/* Video Background */}
+            <div className="fixed inset-0 z-0">
+                {videoUrl ? (
+                    <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        preload="auto"
+                        className="absolute inset-0 w-full h-full object-cover"
+                        style={{ zIndex: 0 }}
+                        onLoadedData={(e) => {
+                            console.log('✅ Video loaded and ready to play');
+                            console.log('Video dimensions and metadata loaded');
+                            const video = e.currentTarget;
+                            // Try to play explicitly
+                            video.play().catch((err) => {
+                                console.warn('Play attempt failed:', err);
+                            });
+                        }}
+                        onCanPlay={(e) => {
+                            console.log('✅ Video can start playing');
+                            const video = e.currentTarget;
+                            // Ensure it plays
+                            video.play().catch((err) => {
+                                console.warn('Play on canPlay failed:', err);
+                            });
+                        }}
+                        onPlay={() => console.log('▶️ Video started playing')}
+                        onError={(e) => {
+                            console.error('❌ Video playback error:', e);
+                            const video = e.currentTarget;
+                            console.error('Error code:', video.error?.code);
+                            console.error('Error message:', video.error?.message);
+                            if (video.error) {
+                                console.error('Full error details:', {
+                                    code: video.error.code,
+                                    message: video.error.message,
+                                });
+                            }
+                        }}
+                    >
+                        <source src={videoUrl} type="video/mp4" />
+                        {/* Fallback for browsers that don't support video */}
+                        Your browser does not support the video tag.
+                    </video>
+                ) : (
+                    <div className="absolute inset-0 bg-slate-50"></div>
+                )}
+                {/* Overlay to ensure content readability - very light overlay to show video */}
+                <div className="absolute inset-0 bg-slate-50/20 backdrop-blur-[0.5px]" style={{ zIndex: 1 }}></div>
+            </div>
+
             {/* Dynamic Background Elements */}
-            <div className="fixed inset-0 pointer-events-none">
+            <div className="fixed inset-0 pointer-events-none z-[1]">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-400/20 premium-blur rounded-full animate-float"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-400/20 premium-blur rounded-full animate-float" style={{ animationDelay: '-2s' }}></div>
             </div>
 
             {/* Header */}
-            <header className="relative z-50 flex justify-between items-center p-8 max-w-7xl mx-auto">
+            <header className="relative z-[100] flex justify-between items-center p-8 max-w-7xl mx-auto">
                 <div className="flex items-center gap-3 group cursor-pointer">
                     <div className="bg-blue-600 p-2.5 rounded-2xl text-white shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform duration-300">
                         <ShieldCheck size={28} />
@@ -46,7 +211,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onStaffLogin 
             </header>
 
             {/* Hero Section */}
-            <main className="relative z-10 max-w-7xl mx-auto px-6 pt-12 md:pt-24 pb-32 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <main className="relative z-[100] max-w-7xl mx-auto px-6 pt-12 md:pt-24 pb-32 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
                 {/* Left Side: Content */}
                 <div className="text-left animate-slide-up">
@@ -147,7 +312,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onStaffLogin 
             </main>
 
             {/* Partner Excellence Section */}
-            <section className="relative z-20 py-24 px-6 bg-slate-900 text-white overflow-hidden">
+            <section className="relative z-[100] py-24 px-6 bg-slate-900 text-white overflow-hidden">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none">
                     <div className="absolute top-1/4 left-0 w-96 h-96 bg-blue-600 rounded-full blur-[150px] opacity-10"></div>
                 </div>
@@ -234,7 +399,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onStaffLogin 
             </section>
 
             {/* Premium Footer */}
-            <footer className="bg-slate-50 border-t border-slate-200 py-20 px-6">
+            <footer className="relative z-[100] bg-slate-50 border-t border-slate-200 py-20 px-6">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
                     <div className="space-y-6 max-w-sm">
                         <div className="flex items-center gap-2">

@@ -11,6 +11,7 @@ import {
     AlertCircle
 } from 'lucide-react';
 import { SubscriptionTier } from '../types';
+import { QRCodeSVG } from 'qrcode.react';
 
 export const AdjusterPartnerDashboard: React.FC = () => {
     const [copied, setCopied] = useState(false);
@@ -53,22 +54,35 @@ export const AdjusterPartnerDashboard: React.FC = () => {
                     </div>
 
                     <div className="bg-white/10 border border-white/10 rounded-2xl p-6 backdrop-blur-md">
-                        <p className="text-blue-200 text-xs font-black uppercase tracking-widest mb-3">Copy & Share your link to lock leads</p>
-                        <div className="flex gap-4">
-                            <div className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 font-mono text-sm text-blue-100 flex items-center">
-                                {referralLink}
+                        <p className="text-blue-200 text-xs font-black uppercase tracking-widest mb-4">Scan QR or Copy Link to Share</p>
+                        <div className="flex flex-col md:flex-row items-center gap-6">
+                            {/* QR Code */}
+                            <div className="bg-white p-4 rounded-2xl shadow-xl">
+                                <QRCodeSVG
+                                    value={referralLink}
+                                    size={140}
+                                    level="H"
+                                    includeMargin={false}
+                                />
                             </div>
-                            <button
-                                onClick={handleCopy}
-                                className="bg-white text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-50 transition-all shrink-0"
-                            >
-                                {copied ? <CheckCircle size={18} className="text-green-500" /> : <Copy size={18} />}
-                                {copied ? 'Copied!' : 'Copy Link'}
-                            </button>
+
+                            {/* Copy Button & Link Info */}
+                            <div className="flex-1 space-y-3 w-full">
+                                <div className="bg-black/30 border border-white/10 rounded-xl px-4 py-3 font-mono text-xs text-blue-100 break-all">
+                                    {referralLink}
+                                </div>
+                                <button
+                                    onClick={handleCopy}
+                                    className="w-full bg-white text-slate-900 px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-50 transition-all shadow-lg active:scale-95"
+                                >
+                                    {copied ? <CheckCircle size={18} className="text-green-500" /> : <Copy size={18} />}
+                                    {copied ? 'Copied!' : 'Copy Link'}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-8 text-sm">
+                    <div className="flex flex-wrap items-center gap-4 md:gap-8 text-sm">
                         <div className="flex items-center gap-2 text-blue-200">
                             <TrendingUp size={16} className="text-green-400" />
                             <span className="font-bold">24 Leads Generated</span>
@@ -77,7 +91,7 @@ export const AdjusterPartnerDashboard: React.FC = () => {
                             <Users size={16} className="text-indigo-400" />
                             <span className="font-bold">14 Active Claims</span>
                         </div>
-                        <a href={referralLink} target="_blank" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors ml-auto font-medium">
+                        <a href={referralLink} target="_blank" className="flex items-center gap-2 text-white/60 hover:text-white transition-colors md:ml-auto font-medium">
                             Test Link <ExternalLink size={14} />
                         </a>
                     </div>
